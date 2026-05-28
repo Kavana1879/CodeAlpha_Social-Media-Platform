@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}StudyFeed — StudySphere{% endblock %}
+
+{% block content %}
+<div class="feed-grid">
+    <!-- LEFT COLUMN: Posts Timeline -->
+    <div class="timeline-column">
+        <!-- Creative "What's on your mind?" box -->
+        <div class="glass-card" style="padding: 20px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="user-avatar-med">
+            <a href="{% url 'create_post' %}" style="flex: 1;">
+                <div class="neon-input" style="color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                    <span>Share coding doubts, project ideas, or study notes...</span>
+                    <i class="fa-solid fa-pen-to-square" style="color: var(--neon-purple);"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Posts List -->
+        {% if posts %}
+            {% for post in posts %}
+                <article class="glass-card post-card" id="post-card-{{ post.id }}">
+                    <!-- Post Header -->
+                    <div class="post-header">
+                        <div class="post-author">
+                            <a href="{% url 'profile' username=post.user.username %}">
+                                <img src="{{ post.user.profile.profile_image.url }}" alt="{{ post.user.username }}" class="user-avatar-med">
+                            </a>
+                            <div>
+                                <a href="{% url 'profile' username=post.user.username %}" class="post-author-name">
+                                    {{ post.user.username }}
+                                </a>
+                                <div class="post-meta-sub">
+                                    <span>{{ post.created_at|timesince }} ago</span>
+                                    <span>•</span>
+                                    <span>{{ post.user.profile.branch }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Category Badge & Follow Status -->
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="category-badge 
+                                {% if post.category == 'Coding' %}category-coding
+                                {% elif post.category == 'Notes' %}category-notes
+                                {% elif post.category == 'AI/ML' %}category-ai-ml
+                                {% elif post.category == 'Projects' %}category-projects
+                                {% elif post.category == 'Internship' %}category-internship
+                                {% endif %}">
+                                {{ post.get_category_display }}
+                            </span>
+                            
+                            {% if post.user != user %}
+                                <button class="btn-neon {% if post.user.profile in user.profile.following.all %}btn-neon-blue{% else %}btn-neon-purple{% endif %} btn-follow-toggle btn-follow-sm" data-user-id="{{ post.user.id }}">
+                                    {% if post.user.profile in user.profile.following.all %}
+                                        <i class="fa-solid fa-user-check"></i> Following
+                                    {% else %}
+                                        <i class="fa-solid fa-user-plus"></i> Follow
+                                    {% endif %}
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Post Body / Content -->
+                    <p class="post-caption">{{ post.caption|linebreaksbr }}</p>
+                    
+                    {% if post.image %}
+                        <div class="post-img-container">
+                            <img src="{{ post.image.url }}" alt="Uploaded attachment" class="post-img" loading="lazy">
+                        </div>
+                    {% endif %}
+
+                    <!-- AI Notes Summary Box -->
+                    {% if post.ai_summary %}
+                        <div class="ai-summary-box">
+                            <div class="ai-summary-header">
+                                <i class="fa-solid fa-robot"></i>
+                                <span>StudySphere AI</span>
+                                <span class="ai-summary-badge">Auto Summary</span>
+                            </div>
+                            <p class="ai-summary-content">"{{ post.ai_summary }}"</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Post Action Buttons (Likes / Comments counters) -->
+                    <div class="post-actions">
+                        <button class="action-btn like-btn {% if user in post.likes.all %}liked{% endif %}" data-post-id="{{ post.id }}" aria-label="Like Post">
+                            <i class="{% if user in post.likes.all %}fa-solid fa-heart{% else %}fa-regular fa-heart{% endif %}"></i>
+                            <span class="likes-count">{{ post.total_likes }} Like{{ post.total_likes|pluralize }}</span>
+                        </button>
+                        
+                        <div class="action-btn" style="cursor: default;">
+                            <i class="fa-regular fa-comment"></i>
+                            <span class="comments-count">{{ post.comments.count }} Comment{{ post.comments.count|pluralize }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Comments Area -->
+                    <div class="comments-section">
+                        <div class="comment-list" id="comment-list-{{ post.id }}">
+                            {% if post.comments.all %}
+                                {% for comment in post.comments.all %}
+                                    <div class="comment-item" id="comment-{{ comment.id }}">
+                                        <img src="{{ comment.user.profile.profile_image.url }}" alt="{{ comment.user.username }}" class="comment-avatar">
+                                        <div class="comment-details">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span class="comment-user">{{ comment.user.username }}</span>
+                                                {% if comment.user == user or post.user == user %}
+                                                    <button class="delete-comment-btn" data-comment-id="{{ comment.id }}" aria-label="Delete Comment">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                            <p class="comment-text">{{ comment.text }}</p>
+                                            <div class="comment-time">{{ comment.created_at|timesince }} ago</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div style="text-align: center; color: #64748b; padding: 10px 0; font-size: 0.82rem;" id="no-comments-placeholder-{{ post.id }}">
+                                    Be the first to share your thoughts on this!
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Quick input box (Submit via AJAX) -->
+                        <form class="comment-input-form" data-post-id="{{ post.id }}">
+                            <input type="text" class="neon-input comment-input-box" placeholder="Write a comment..." required>
+                            <button type="submit" class="btn-neon btn-neon-blue" style="border-radius: 50%; padding: 0; width: 38px; height: 38px;" aria-label="Send Comment">
+                                <i class="fa-solid fa-paper-plane" style="font-size: 0.85rem;"></i>
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="glass-card" style="padding: 40px; text-align: center;">
+                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--neon-purple); margin-bottom: 15px; text-shadow: var(--glow-purple);"></i>
+                <h3 style="margin-bottom: 8px;">No study notes found</h3>
+                <p style="color: #64748b; font-size: 0.95rem;">Be the trailblazer! Click 'Create Post' to share your learning.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT COLUMN: Discord-Style Sidebar -->
+    <aside class="sidebar-panel">
+        <!-- Self Profile Card -->
+        <div class="glass-card" style="padding: 24px; margin-bottom: 25px; text-align: center;">
+            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="profile-avatar-large" style="width: 80px; height: 80px; margin-bottom: 12px;">
+            <h3 style="font-size: 1.15rem; color: #ffffff;">{{ user.username }}</h3>
+            <span class="profile-dept-tag" style="font-size: 0.78rem; padding: 2px 10px; margin-top: 6px;">
+                {{ user.profile.branch }}
+            </span>
+            <div style="display: flex; gap: 15px; margin: 15px 0; justify-content: center; font-size: 0.85rem; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <div>
+                    <strong style="color: #ffffff;">{{ user.profile.followers.count }}</strong>
+                    <div style="color: #64748b; font-size: 0.75rem;">Followers</div>
+                </div>
+                <div style="border-left: 1px solid var(--border-color); padding-left: 15px;">
+                    <strong style="color: #ffffff;">{{ user.profile.following.count }}</strong>
+                    <div style="color: #64748b; font-size: 0.75rem;">Following</div>
+                </div>
+            </div>
+            <a href="{% url 'profile' username=user.username %}" class="btn-neon btn-neon-purple btn-follow-sm" style="display: block; width: 100%;">
+                <i class="fa-solid fa-user-gear"></i> View Profile
+            </a>
+        </div>
+
+        <!-- Suggested Students Sidebar (Loaded via Global Context Processor!) -->
+        <div class="glass-card" style="padding: 20px;">
+            <h3 class="sidebar-title">
+                <i class="fa-solid fa-user-group text-glow-blue" style="color: var(--neon-blue);"></i> Suggested Students
+            </h3>
+            
+            {% if suggested_students %}
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% for profile in suggested_students %}
+                        <div class="suggested-user-card">
+                            <a href="{% url 'profile' username=profile.user.username %}" style="display: flex; align-items: center; flex: 1; overflow: hidden;">
+                                <img src="{{ profile.profile_image.url }}" alt="{{ profile.user.username }}" class="user-avatar-small">
+                                <div class="suggested-info">
+                                    <div class="suggested-name">{{ profile.user.username }}</div>
+                                    <div class="suggested-dept">{{ profile.branch }}</div>
+                                </div>
+                            </a>
+                            <button class="btn-neon btn-neon-purple btn-follow-toggle btn-follow-sm" data-user-id="{{ profile.user.id }}">
+                                <i class="fa-solid fa-user-plus"></i> Follow
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: #64748b; font-size: 0.8rem; text-align: center; padding: 15px 0;">
+                    You are connected with everyone! 🎉
+                </p>
+            {% endif %}
+        </div>
+    </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register — StudySphere{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="min-height: calc(100vh - 100px); padding-top: 10px; padding-bottom: 20px;">
+    <div class="auth-card glass-card" style="max-width: 500px; padding: 30px;">
+        <h2 class="auth-title text-glow-pink">Create Workspace</h2>
+        <p class="auth-sub">Connect with academic peers across branches</p>
+        
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            
+            <div class="auth-form-group">
+                <label for="username" class="auth-label">Username</label>
+                <input type="text" id="username" name="username" class="neon-input" placeholder="Choose a unique username" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="email" class="auth-label">Email Address</label>
+                <input type="email" id="email" name="email" class="neon-input" placeholder="yourname@college.edu" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password" class="auth-label">Password</label>
+                <input type="password" id="password" name="password" class="neon-input" placeholder="Create a secure password" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="branch" class="auth-label">Department / Branch</label>
+                <select id="branch" name="branch" class="neon-input" style="cursor: pointer;" required>
+                    <option value="" disabled selected>Select your engineering branch</option>
+                    <option value="Computer Science">Computer Science & Engineering 💻</option>
+                    <option value="AI / ML">Artificial Intelligence & ML 🤖</option>
+                    <option value="Data Science">Data Science & Analytics 📊</option>
+                    <option value="Information Technology">Information Technology 📡</option>
+                    <option value="Electrical Engineering">Electrical & Electronics ⚡</option>
+                    <option value="Electronics & Communication">Electronics & Communication 📱</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering ⚙️</option>
+                    <option value="Civil Engineering">Civil Engineering 🏗️</option>
+                </select>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="skills" class="auth-label">Skills / Interests</label>
+                <input type="text" id="skills" name="skills" class="neon-input" placeholder="e.g. Python, UI/UX, DSA, WebDev (comma-separated)">
+                <small style="color: #64748b; font-size: 0.72rem; margin-top: 5px; display: block;">
+                    Adding skills unlocks special neon glows and matches peers.
+                </small>
+            </div>
+            
+            <button type="submit" class="btn-neon btn-neon-pink" style="width: 100%; margin-top: 15px;">
+                <i class="fa-solid fa-user-plus"></i> Launch Account
+            </button>
+        </form>
+        
+        <div class="auth-footer" style="margin-top: 20px;">
+            Already have an account? 
+            <a href="{% url 'login' %}" class="text-glow-purple">Log in here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ target_user.username }}'s Connections — StudySphere{% endblock %}
+
+{% block content %}
+<div class="connections-wrapper" style="max-width: 900px; margin: 0 auto; width: 100%;">
+    <!-- HEADER -->
+    <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+        <a href="{% url 'profile' username=target_user.username %}" class="btn-neon" style="border-radius: 50%; padding: 0; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-color: var(--border-color);">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="text-glow-pink" style="font-size: 1.5rem; font-family: var(--font-heading);">{{ target_user.username }}'s Network</h2>
+            <p style="color: #64748b; font-size: 0.85rem;">Browse connected study profiles and academic peers</p>
+        </div>
+    </div>
+
+    <!-- TAB HEADERS -->
+    <div style="display: flex; gap: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 25px; padding-bottom: 1px;">
+        <a href="?tab=followers" class="btn-neon {% if active_tab == 'followers' %}btn-neon-pink{% else %}{% endif %}" style="border-radius: 8px 8px 0 0; padding: 12px 24px; border-bottom: none; font-size: 0.85rem;">
+            <i class="fa-solid fa-user-group"></i> Followers ({{ target_user.profile.followers.count }})
+        </a>
+        <a href="?tab=following" class="btn-neon {% if active_tab == 'following' %}btn-neon-pink{% else %}{% endif %}" style="border-radius: 8px 8px 0 0; padding: 12px 24px; border-bottom: none; font-size: 0.85rem;">
+            <i class="fa-solid fa-user-plus"></i> Following ({{ target_user.profile.following.count }})
+        </a>
+    </div>
+
+    <!-- PEERS GRID -->
+    <div class="connections-grid">
+        {% if profiles %}
+            {% for peer in profiles %}
+                <div class="glass-card connection-card">
+                    <a href="{% url 'profile' username=peer.user.username %}" style="display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden;">
+                        <img src="{{ peer.profile_image.url }}" alt="{{ peer.user.username }}" class="user-avatar-med" style="width: 50px; height: 50px;">
+                        <div style="overflow: hidden;">
+                            <h4 style="color: #ffffff; font-size: 0.95rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 2px;">
+                                {{ peer.user.username }}
+                            </h4>
+                            <span class="category-badge" style="font-size: 0.65rem; padding: 1px 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; display: inline-block;">
+                                {{ peer.branch|default:"Student" }}
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Follow Button -->
+                    {% if peer.user != user %}
+                        <button class="btn-neon {% if peer in user.profile.following.all %}btn-neon-blue{% else %}btn-neon-purple{% endif %} btn-follow-toggle btn-follow-sm" data-user-id="{{ peer.user.id }}">
+                            {% if peer in user.profile.following.all %}
+                                <i class="fa-solid fa-user-check"></i> Following
+                            {% else %}
+                                <i class="fa-solid fa-user-plus"></i> Follow
+                            {% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="glass-card" style="grid-column: 1 / -1; padding: 40px; text-align: center;">
+                <i class="fa-solid fa-face-meh" style="font-size: 2.5rem; color: var(--neon-pink); margin-bottom: 12px; text-shadow: var(--glow-pink);"></i>
+                <p style="color: #64748b; font-size: 0.92rem;">
+                    {% if active_tab == 'followers' %}
+                        No followers yet.
+                    {% else %}
+                        Not following any peers yet.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications — StudySphere{% endblock %}
+
+{% block content %}
+<div class="create-post-container" style="max-width: 750px;">
+    <div class="glass-card" style="padding: 30px;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fa-solid fa-bell text-glow-pink" style="font-size: 1.8rem; color: var(--neon-pink);"></i>
+                <h2 style="font-size: 1.6rem; font-family: var(--font-heading); color: #ffffff;">Notifications Hub</h2>
+            </div>
+            
+            {% if notifications %}
+                <form action="{% url 'mark_all_read' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-neon btn-neon-blue btn-follow-sm">
+                        <i class="fa-solid fa-check-double"></i> Mark all read
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Notifications List -->
+        {% if notifications %}
+            <div style="display: flex; flex-direction: column;">
+                {% for notif in notifications %}
+                    <div class="notification-card {% if not notif.is_read %}unread{% endif %}">
+                        <div class="notif-left">
+                            <!-- Glowing specific circular icon -->
+                            <div class="notif-icon-circle 
+                                {% if notif.notification_type == 'like' %}notif-like-icon
+                                {% elif notif.notification_type == 'comment' %}notif-comment-icon
+                                {% else %}notif-follow-icon
+                                {% endif %}">
+                                {% if notif.notification_type == 'like' %}<i class="fa-solid fa-heart"></i>
+                                {% elif notif.notification_type == 'comment' %}<i class="fa-solid fa-comment"></i>
+                                {% else %}<i class="fa-solid fa-user-plus"></i>
+                                {% endif %}
+                            </div>
+
+                            <!-- Sender avatar -->
+                            <img src="{{ notif.sender.profile.profile_image.url }}" alt="{{ notif.sender.username }}" class="notif-sender-avatar">
+
+                            <!-- Alert textual details -->
+                            <div class="notif-body">
+                                <div>
+                                    <a href="{% url 'profile' username=notif.sender.username %}" style="font-weight: 700; color: #ffffff; text-shadow: none;">
+                                        {{ notif.sender.username }}
+                                    </a>
+                                    
+                                    {% if notif.notification_type == 'like' %}
+                                        liked your note.
+                                    {% elif notif.notification_type == 'comment' %}
+                                        commented: <span style="font-style: italic; color: #94a3b8;">"{{ notif.post.comments.last.text|truncatechars:50 }}"</span>
+                                    {% else %}
+                                        started following you.
+                                    {% endif %}
+                                </div>
+                                <div class="notif-time">{{ notif.created_at|timesince }} ago</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Actions (e.g. view the post details) -->
+                        {% if notif.post %}
+                            <a href="{% url 'feed' %}#post-card-{{ notif.post.id }}" class="btn-neon btn-neon-purple btn-follow-sm">
+                                View Post <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem; margin-left: 4px;"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px 0; color: #64748b;">
+                <i class="fa-solid fa-bell-slash" style="font-size: 3rem; color: var(--border-glow-purple); margin-bottom: 15px;"></i>
+                <h3 style="color: #ffffff; margin-bottom: 8px;">All caught up!</h3>
+                <p style="font-size: 0.9rem;">You have no active notification alerts in your student feed right now.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

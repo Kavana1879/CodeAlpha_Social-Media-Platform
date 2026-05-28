@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login — StudySphere{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-card">
+        <h2 class="auth-title text-glow-purple">Welcome Back</h2>
+        <p class="auth-sub">Log in to enter the student hub</p>
+        
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <div class="auth-form-group">
+                <label for="username" class="auth-label">Username</label>
+                <input type="text" id="username" name="username" class="neon-input" placeholder="Enter your username" required autofocus>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password" class="auth-label">Password</label>
+                <input type="password" id="password" name="password" class="neon-input" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn-neon btn-neon-purple" style="width: 100%; margin-top: 15px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Enter Platform
+            </button>
+        </form>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="#" onclick="alert('Password reset link has been simulated. In a production environment, this triggers a secure SMTP token generation.')" class="text-glow-blue" style="font-size: 0.85rem;">
+                Forgot Password?
+            </a>
+        </div>
+        
+        <div class="auth-footer">
+            Don't have an account? 
+            <a href="{% url 'register' %}" class="text-glow-pink">Register here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

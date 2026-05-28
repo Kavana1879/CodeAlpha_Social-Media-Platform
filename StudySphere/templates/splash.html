@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySphere — Connect • Learn • Grow</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Core Style -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        /* Hide navbar on splash page */
+        body {
+            background-color: var(--bg-darker);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen Screen Overlay -->
+    <div class="splash-container" data-redirect="{% if user.is_authenticated %}{% url 'feed' %}{% else %}{% url 'login' %}{% endif %}">
+        <div class="splash-logo-wrap">
+            <h1 class="splash-logo">
+                <i class="fa-solid fa-circle-nodes" style="margin-right: 10px;"></i>StudySphere
+            </h1>
+        </div>
+        <p class="splash-tagline">Connect • Learn • Grow</p>
+        
+        <div class="splash-loader" aria-label="Loading StudySphere Application">
+            <div class="splash-progress"></div>
+        </div>
+        
+        <p style="margin-top: 15px; font-size: 0.85rem; color: #64748b; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;">
+            Preparing your workspace...
+        </p>
+    </div>
+
+    <!-- Core Scripts to run the particles and redirection -->
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

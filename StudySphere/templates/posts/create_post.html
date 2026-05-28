@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Share Note — StudySphere{% endblock %}
+
+{% block content %}
+<div class="create-post-container">
+    <div class="glass-card" style="padding: 30px;">
+        <h2 class="text-glow-purple" style="font-size: 1.8rem; margin-bottom: 8px; font-family: var(--font-heading);">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Share Study Material
+        </h2>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 25px;">
+            Publish notes, project specs, or coding doubts. Our AI will automatically generate an executive summary for your classmates.
+        </p>
+
+        <form method="post" action="{% url 'create_post' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Category Selection -->
+            <div class="auth-form-group">
+                <label for="category" class="auth-label">Category</label>
+                <select id="category" name="category" class="neon-input" style="cursor: pointer;" required>
+                    <option value="Notes" selected>Notes 📝</option>
+                    <option value="Coding">Coding 💻</option>
+                    <option value="AI/ML">AI/ML 🤖</option>
+                    <option value="Projects">Projects 🚀</option>
+                    <option value="Internship">Internship 💼</option>
+                </select>
+            </div>
+
+            <!-- Notes Caption -->
+            <div class="auth-form-group">
+                <label for="caption" class="auth-label">Notes & Caption</label>
+                <textarea id="caption" name="caption" class="neon-input" rows="6" placeholder="Paste your study notes, coding explanation, or internship findings here..." required style="resize: vertical; min-height: 120px;"></textarea>
+            </div>
+
+            <!-- File Upload Dropzone (Triggered via javascript inside main.js) -->
+            <div class="auth-form-group">
+                <label class="auth-label">Upload Image / Blueprint (Optional)</label>
+                <div class="image-preview-box" id="dropzone-box" role="button" aria-label="Upload post image">
+                    <!-- Placeholder UI -->
+                    <div class="preview-placeholder" style="text-align: center; color: #64748b;">
+                        <i class="fa-regular fa-image" style="font-size: 2.5rem; color: var(--neon-purple); margin-bottom: 8px; text-shadow: var(--glow-purple);"></i>
+                        <div style="font-size: 0.9rem; font-weight: 500; color: #ffffff;">Drag & Drop or Click to upload</div>
+                        <div style="font-size: 0.72rem; margin-top: 4px;">PNG, JPG, JPEG (Max 5MB)</div>
+                    </div>
+                </div>
+                <!-- Actual Hidden Input -->
+                <input type="file" id="image" name="image" class="post-image-input" accept="image/*" style="display: none;">
+            </div>
+
+            <!-- Submit Button -->
+            <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <a href="{% url 'feed' %}" class="btn-neon" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.1); color: #cbd5e1;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn-neon btn-neon-purple">
+                    <i class="fa-solid fa-paper-plane"></i> Publish Note
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

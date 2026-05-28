@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile — StudySphere{% endblock %}
+
+{% block content %}
+<div class="create-post-container" style="max-width: 650px;">
+    <div class="glass-card" style="padding: 30px;">
+        <h2 class="text-glow-blue" style="font-size: 1.8rem; margin-bottom: 8px; font-family: var(--font-heading);">
+            <i class="fa-solid fa-user-gear"></i> Update Student Profile
+        </h2>
+        <p style="color: #94a3b8; font-size: 0.92rem; margin-bottom: 25px;">
+            Keep your profile details up-to-date to let peer students find you based on similar research and coding disciplines.
+        </p>
+
+        <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Profile Picture preview/uploader -->
+            <div class="auth-form-group" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 25px;">
+                <label class="auth-label" style="align-self: flex-start;">Profile Avatar</label>
+                <div class="image-preview-box" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--neon-blue); box-shadow: var(--glow-blue); position: relative; cursor: pointer; overflow: hidden;" id="profile-upload-zone">
+                    <img src="{{ profile.profile_image.url }}" alt="Profile Avatar" style="display: block; width: 100%; height: 100%; object-fit: cover;">
+                    <div class="preview-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease;">
+                        <i class="fa-solid fa-camera" style="color: #ffffff; font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+                <input type="file" id="profile_image" name="profile_image" class="post-image-input" accept="image/*" style="display: none;">
+                <small style="color: #64748b; font-size: 0.72rem;">Click on the avatar to choose a new picture</small>
+            </div>
+
+            <!-- Branch/Department -->
+            <div class="auth-form-group">
+                <label for="branch" class="auth-label">Department / Branch</label>
+                <select id="branch" name="branch" class="neon-input" style="cursor: pointer;" required>
+                    <option value="Computer Science" {% if profile.branch == 'Computer Science' %}selected{% endif %}>Computer Science & Engineering 💻</option>
+                    <option value="AI / ML" {% if profile.branch == 'AI / ML' %}selected{% endif %}>Artificial Intelligence & ML 🤖</option>
+                    <option value="Data Science" {% if profile.branch == 'Data Science' %}selected{% endif %}>Data Science & Analytics 📊</option>
+                    <option value="Information Technology" {% if profile.branch == 'Information Technology' %}selected{% endif %}>Information Technology 📡</option>
+                    <option value="Electrical Engineering" {% if profile.branch == 'Electrical Engineering' %}selected{% endif %}>Electrical & Electronics ⚡</option>
+                    <option value="Electronics & Communication" {% if profile.branch == 'Electronics & Communication' %}selected{% endif %}>Electronics & Communication 📱</option>
+                    <option value="Mechanical Engineering" {% if profile.branch == 'Mechanical Engineering' %}selected{% endif %}>Mechanical Engineering ⚙️</option>
+                    <option value="Civil Engineering" {% if profile.branch == 'Civil Engineering' %}selected{% endif %}>Civil Engineering 🏗️</option>
+                </select>
+            </div>
+
+            <!-- Bio -->
+            <div class="auth-form-group">
+                <label for="bio" class="auth-label">Biography / Description</label>
+                <textarea id="bio" name="bio" class="neon-input" rows="4" placeholder="Share your research interests, current projects, or a brief introduction about yourself..." style="resize: vertical; min-height: 80px;">{{ profile.bio }}</textarea>
+            </div>
+
+            <!-- Skills -->
+            <div class="auth-form-group">
+                <label for="skills" class="auth-label">Skills & Interests (Comma-separated)</label>
+                <input type="text" id="skills" name="skills" class="neon-input" placeholder="e.g. Python, UI/UX, DSA, React, Android" value="{{ profile.skills }}">
+                <small style="color: #64748b; font-size: 0.72rem; margin-top: 5px; display: block;">
+                    Separate each discipline with a comma. They will display as glowing tags on your public workspace.
+                </small>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <a href="{% url 'profile' username=user.username %}" class="btn-neon" style="background: rgba(255, 255, 255, 0.03); border-color: rgba(255,255,255,0.1); color: #cbd5e1;">
+                    Discard
+                </a>
+                <button type="submit" class="btn-neon btn-neon-blue">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profiles
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Custom inline script for handling the avatar upload trigger
+    document.addEventListener("DOMContentLoaded", () => {
+        const profileUploadZone = document.querySelector("#profile-upload-zone");
+        const fileInput = document.querySelector("#profile_image");
+        const previewImg = profileUploadZone ? profileUploadZone.querySelector("img") : null;
+        
+        if (profileUploadZone && fileInput) {
+            // Hover effect overlay
+            const overlay = profileUploadZone.querySelector(".preview-overlay");
+            profileUploadZone.addEventListener("mouseenter", () => { if (overlay) overlay.style.opacity = "1"; });
+            profileUploadZone.addEventListener("mouseleave", () => { if (overlay) overlay.style.opacity = "0"; });
+            
+            profileUploadZone.addEventListener("click", () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        if (previewImg) {
+                            previewImg.src = event.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
